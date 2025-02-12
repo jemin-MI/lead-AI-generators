@@ -1,0 +1,111 @@
+analyze_motive:
+  description: |
+    Analyze the given query to determine its motive.
+    - Query: {query}
+
+    Guidelines for Classification:
+    - Return 'False' if the motive is about:
+      - Seeking a job or asking for employment opportunities in the company.
+      - Offering personal or company services to us.
+      - Description of service and its pricing to provide us.
+
+    - Return 'True' if the query is about:
+      - Hiring a developer for a personal/company project or job.
+      - Seeking technical support or consulting for an existing personal project.
+      - Looking for project-based assistance, including outsourcing work.
+      - Inquiring about developing or building new software.
+      - Asking for a call request except for job seeking.
+
+    Important Notes:
+    - The response must strictly be either 'True' or 'False' (without explanations or additional text).
+    - Carefully distinguish between job-seekers and employers/clients to avoid misclassification.
+  expected_output: "Return only 'Enterprise', 'Mid-sized', 'Small Business', or 'Unknown' based on the query details."
+  agent: motive_agent
+
+sector_analyze:
+  description: |
+    Analyze the query and determine its sector.
+    - Query: {query}
+  expected_output: "Return a sector name from the query if it matches any value in {selected_sectors}. If a match is found, return the exact sector name from {selected_sectors}. Otherwise, return an abstracted sector name."
+  agent: sector_agent
+
+sector_filter:
+  description: |
+    Analyze the input query and determine if it contains or mentions a matched sector from {selected_sectors}.
+    If matched, return only 'True'; otherwise, return only 'False'.
+  expected_output: "Return Boolean values 'True' or 'False'."
+  agent: sector_filter_agent
+
+service_category_finder:
+  description: |
+    Identify the software development category mentioned or implied in the query.
+    - Query: {query}
+    - Example categories include Web Development, App Development, Cloud Hosting, etc.
+  expected_output: "Return a name of relevant category name only."
+  agent: service_category_finder_agent
+
+technology_finder:
+  description: |
+    Extract relevant technologies from the given query if it pertains to the {category} category.
+    - Query: {query}
+    - If the query is related to job postings, job applications, or hiring, return 'None'.
+    - If no specific technology is mentioned in the query, return 'None'.
+  expected_output: "Return a list of relevant technology names only if explicitly mentioned in the query (without any extra description). If no technologies are found or the query is job-related, return 'None'."
+  agent: technology_finder_agent
+
+project_complexity_finder:
+  description: |
+    Analyze the complexity of the project based on the query, category, and technology.
+    - Query: {query}
+    - Category: {resource}
+    - Technology: {technology}
+
+    ### Classification Levels:
+    1. **Simple**: Small to medium-sized projects with basic functionality (e.g., Personal websites, small business sites).
+    2. **Advanced**: Medium to large projects with custom UI and integrations (e.g., E-commerce, SaaS).
+    3. **Enterprise**: Large-scale, complex projects requiring enterprise integrations (e.g., AWS, Kubernetes, ERP systems).
+  expected_output: "Return one of the complexity levels only (Note: without any extra description): 'Simple', 'Advanced', or 'Enterprise'."
+  agent: project_complexity_agent
+
+email_priority_finder:
+  description: |
+    Determine the priority level based on the email domain.
+    - Email: {email}
+    - If the email belongs to a business domain, return 'Prior'.
+    - Otherwise, return 'Nonprior'.
+  expected_output: "Return either 'Prior' or 'Nonprior' with no additional details."
+  agent: email_priority_agent
+
+location_priority_finder:
+  description: |
+    Determine the priority level based on the country.
+    - Country: {country}
+    - If the country is in {country_list}, return 'Prior'.
+    - Otherwise, return 'Nonprior'.
+  expected_output: "Return either 'Prior' or 'Nonprior' with no additional details."
+  agent: country_priority_agent
+
+urgency_pricing_finder:
+  description: |
+    Analyze the given query and determine its urgency level based on the following conditions:
+
+    1️⃣ **High**: If the query explicitly mentions both urgency (e.g., deadlines, ASAP, urgent) and pricing (e.g., budget, cost, payment).
+    2️⃣ **Medium**: If the query does not mention urgency or pricing but contains other relevant details.
+    3️⃣ **Low**: If the query provides minimal or vague information with no mention of urgency or pricing.
+    
+    - Query: {query}
+  expected_output: "Return only 'High', 'Medium', or 'Low' based on the query details."
+  agent: urgency_pricing_agent
+
+company_type_finder:
+  description: |
+    Analyze the given query to determine the type of provider (company, startup, or agency) based on its size and details.
+    - Query: {query}
+    
+    ### Classification:
+    1️⃣ **Enterprise**: If the query explicitly mentions a large-scale company, corporation, or multinational firm.
+    2️⃣ **Mid-sized**: If the query refers to a medium-sized company, mid-level firm, or established agency.
+    3️⃣ **Small Business**: If the query describes a startup, small business, or individual service provider.
+    4️⃣ **Unknown**: If no clear company size or type is mentioned.
+  expected_output: "Return only 'Enterprise', 'Mid-sized', 'Small Business', or 'Unknown' based on the query details."
+  agent: provider_type_agent
